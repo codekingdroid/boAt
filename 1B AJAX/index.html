@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add User Data</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var userData = localStorage.getItem('userData');
+            if (userData) {
+                displayUserData(JSON.parse(userData));
+            }
+            $('#userForm').submit(function (event) {
+                event.preventDefault();
+
+                var name = $('#name').val();
+                var email = $('#email').val();
+
+                var user = {
+                    name: name,
+                    email: email
+                };
+                var storedData = localStorage.getItem('userData');
+                var userList = storedData ? JSON.parse(storedData) : [];
+                userList.push(user);
+
+                // Simulate POST request using XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'http://localhost:3000/users', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        // Request successful, store data in local storage
+                        localStorage.setItem('userData', JSON.stringify(userList));
+
+                        displayUserData(userList);
+                    } else if (xhr.readyState === 4) {
+                        // Error occurred
+                        alert('Error occurred. Please try again.');
+                    }
+                };
+                xhr.send(JSON.stringify(user));
+            });
+            function displayUserData(userList) {
+                $('#result').empty();
+                userList.forEach(function (user) {
+                    var userText = 'Name: ' + user.name + ', Email: ' + user.email;
+                    $('#result').append('<p>' + userText + '</p>');
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <h1>Add User Data</h1>
+    <form id="userForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required><br><br>
+
+        <input type="submit" value="Add User">
+    </form>
+
+    <h2>Stored User Data:</h2>
+    <div id="result"></div>
+</body>
+
+</html>
